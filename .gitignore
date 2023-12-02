@@ -1,0 +1,4 @@
+.DS_Store
+input.txt
+zig-cache
+zig-out

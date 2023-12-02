@@ -103,14 +103,3 @@ pub fn main() !void {
         std.debug.print("{d} ", .{c});
     }
 }
-
-fn numToStr(num: u8) []u8 {
-    switch (num) {
-        0 => return "zero",
-        1 => return "one",
-        2 => return "two",
-        3 => return "three",
-        4 => return "four",
-        5 => return "five",
-    }
-}

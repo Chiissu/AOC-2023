@@ -26,8 +26,7 @@ pub fn main() !void {
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         std.debug.print("Processing: {s}\n", .{line});
 
-        var firstNumFound = false;
-        var firstNum: u8 = 0;
+        var firstNum: ?u8 = null;
         var lastNum: u8 = 0;
 
         // Iterate through each character
@@ -85,21 +84,17 @@ pub fn main() !void {
             }
 
             // store the result
-            if (!firstNumFound) {
-                firstNumFound = true;
+            if (firstNum == null) {
                 firstNum = num;
             }
             lastNum = num;
         }
 
-        std.debug.print("Number: {d}{d}\n", .{ firstNum, lastNum });
+        std.debug.print("Number: {d}{d}\n", .{ firstNum.?, lastNum });
         // Add the result up
-        result = result + firstNum * 10 + lastNum;
+        result = result + firstNum.? * 10 + lastNum;
     }
 
     // Show result
     std.debug.print("Final answer: {d}\n", .{result});
-    for ("abcdefg") |c| {
-        std.debug.print("{d} ", .{c});
-    }
 }

@@ -6,7 +6,7 @@ We win these
 
 The Chiissu Team's answer to [Advent of Code 2023](https://adventofcode.com/2023).
 
-You can find our write-ups [here](./wiki).
+You can find our write-ups [here](https://github.com/Chiissu/AOC-2023/wiki).
 
 ## Languages
 

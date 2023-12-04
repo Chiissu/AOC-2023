@@ -9,9 +9,9 @@ pub fn main() !void {
 
     // Find digits in each line
     var buf: [1024]u8 = undefined;
-    var result: u32 = 0;
+    var result: u16 = 0;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
-        var point: u32 = 0;
+        var point: u16 = 0;
 
         var fmtItr1 = std.mem.split(u8, line, ": ");
         std.debug.print("Processing: {s}\n", .{fmtItr1.next().?});

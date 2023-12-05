@@ -10,7 +10,7 @@ pub fn main() !void {
 
     // Find digits in each line
     var buf: [1024]u8 = undefined;
-    var result: u64 = 0;
+    var result: u32 = 0;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         std.debug.print("Processing: {s}\n", .{line});
 

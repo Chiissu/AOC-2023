@@ -8,9 +8,7 @@ pub fn main() !void {
     var buf_reader = std.io.bufferedReader(input.reader());
     var in_stream = buf_reader.reader();
 
-    const numNames: [10][]const u8 = .{ "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
-    _ = numNames;
-    var result: u64 = 0;
+    var result: u32 = 0;
 
     // Iterate through each line
     var buf: [1024]u8 = undefined;
@@ -26,7 +24,7 @@ pub fn main() !void {
 
             if (57 < char) {
                 // The current character is a letter
-                const numCheckRes = checkForNum(line, i);
+                const numCheckRes = checkForNum(line, @truncate(i));
 
                 // The current position does not have a number
                 if (numCheckRes == null) break :charCalc;
@@ -56,7 +54,7 @@ pub fn main() !void {
     std.debug.print("Final answer: {d}\n", .{result});
 }
 
-fn checkForNum(line: []u8, position: u64) ?u8 {
+fn checkForNum(line: []u8, position: u8) ?u8 {
     const numNames: [10][]const u8 = .{ "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
     if (line.len > position + 4) {
         const slice = line[position .. position + 5];

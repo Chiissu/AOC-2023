@@ -12,9 +12,9 @@ pub fn main() !void {
     // Step 1: Convert file to 2d array, and create list of numbers
     var buf: [1024]u8 = undefined;
     var schematic: [140][140]u8 = undefined;
-    var partNumbers = std.AutoArrayHashMap(u64, PartInfo).init(allocator);
+    var partNumbers = std.AutoArrayHashMap(u16, PartInfo).init(allocator);
     defer partNumbers.deinit();
-    var partLength: usize = 0;
+    var partLength: u16 = 0;
     {
         var lineIndex: u8 = 0;
         while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
@@ -32,12 +32,12 @@ pub fn main() !void {
 
                 const nextLetterIdx = findNextLetter(line[charIndex..]);
 
-                var numberLength: usize = 0;
+                var numberLength: u8 = 0;
 
-                if (nextLetterIdx == null)
-                    numberLength = 140 - charIndex
-                else
-                    numberLength = nextLetterIdx.?;
+                if (nextLetterIdx == null) {
+                    numberLength = @truncate(charIndex);
+                    numberLength = 140 - numberLength;
+                } else numberLength = @truncate(nextLetterIdx.?);
                 const val = schematic[lineIndex][charIndex .. charIndex + numberLength];
                 skipMem = @truncate(numberLength);
                 try partNumbers.put(partLength, PartInfo{ .pos = .{ .x = lineIndex, .y = @truncate(charIndex) }, .val = val });
@@ -50,7 +50,7 @@ pub fn main() !void {
     // Step 2: Look for gears
     var partItr = partNumbers.iterator();
     var result: u32 = 0;
-    var gearCandidates = std.AutoArrayHashMap([2]u16, u32).init(allocator);
+    var gearCandidates = std.AutoArrayHashMap([2]u8, u32).init(allocator);
     defer gearCandidates.deinit();
     while (partItr.next()) |partPtr| {
         const part = partPtr.value_ptr.*;

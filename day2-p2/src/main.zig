@@ -10,13 +10,13 @@ pub fn main() !void {
     // Find digits in each line
     var buf: [1024]u8 = undefined;
     var gameID: u8 = 0;
-    var result: u64 = 0;
+    var result: u32 = 0;
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         gameID = gameID + 1;
 
         var blueCount: u16 = 0;
-        var greenCount: u16 = 0;
-        var redCount: u16 = 0;
+        var greenCount: u8 = 0;
+        var redCount: u8 = 0;
 
         var fmtItr = std.mem.split(u8, line, ": ");
         _ = fmtItr.next();

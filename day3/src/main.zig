@@ -12,9 +12,9 @@ pub fn main() !void {
     // Step 1: Convert file to 2d array, and create list of numbers
     var buf: [1024]u8 = undefined;
     var schematic: [140][140]u8 = undefined;
-    var partNumbers = std.AutoArrayHashMap(u64, PartInfo).init(allocator);
+    var partNumbers = std.AutoArrayHashMap(u16, PartInfo).init(allocator);
     defer partNumbers.deinit();
-    var partLength: usize = 0;
+    var partLength: u16 = 0;
     {
         var lineIndex: u8 = 0;
         while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
@@ -32,12 +32,12 @@ pub fn main() !void {
 
                 const nextLetterIdx = findNextLetter(line[charIndex..]);
 
-                var numberLength: usize = 0;
+                var numberLength: u8 = 0;
 
-                if (nextLetterIdx == null)
-                    numberLength = 140 - charIndex
-                else
-                    numberLength = nextLetterIdx.?;
+                if (nextLetterIdx == null) {
+                    numberLength = @truncate(charIndex);
+                    numberLength = 140 - numberLength;
+                } else numberLength = @truncate(nextLetterIdx.?);
                 const val = schematic[lineIndex][charIndex .. charIndex + numberLength];
                 skipMem = @truncate(numberLength);
                 try partNumbers.put(partLength, PartInfo{ .pos = .{ .x = lineIndex, .y = @truncate(charIndex) }, .val = val });
@@ -49,7 +49,7 @@ pub fn main() !void {
 
     // Step 2: Look for valid part numbers
     var partItr = partNumbers.iterator();
-    var result: u64 = 0;
+    var result: u32 = 0;
     while (partItr.next()) |partPtr| {
         const part = partPtr.value_ptr.*;
         const bounds = .{
@@ -67,7 +67,7 @@ pub fn main() !void {
                         // There is a marker in scan area, add the part number to result
                         std.debug.print("Found valid part number: {s}\n", .{part.val});
                         for (part.val, 0..) |digitChar, digitIdx| {
-                            result += (digitChar - 48) * std.math.pow(u64, 10, part.val.len - digitIdx - 1);
+                            result += (digitChar - 48) * std.math.pow(u32, 10, @truncate(part.val.len - digitIdx - 1));
                         }
                     }
                 }

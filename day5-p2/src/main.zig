@@ -47,31 +47,27 @@ pub fn main() !void {
                 const rng = try std.fmt.parseUnsigned(u32, spaceItr.next().?, 10);
 
                 std.debug.print("Mapping: {d} {d} {d}\n", .{ dest, src, rng });
-                for (seedList.items, 0..) |seed, index| {
-                    if (seed.processed) continue;
-                    if (seed.end < src or seed.start > src + rng) continue;
-                    if (seed.start < src and seed.end > src + rng) {
-                        seedList.items[index] = SeedRange{ .start = seed.start, .end = @truncate(src - 1), .processed = false };
-                        try seedList.append(SeedRange{ .start = @truncate(dest), .end = @truncate(dest + rng), .processed = true });
-                        try seedList.append(SeedRange{ .start = @truncate(src + rng + 1), .end = seed.end, .processed = false });
-                        continue;
-                    }
-                    if (seed.start > src and seed.end < src + rng) {
-                        seedList.items[index] = SeedRange{ .start = @truncate(dest + seed.start - src), .end = @truncate(dest + seed.end - src), .processed = true };
-                        continue;
-                    }
-                    if (seed.start < src) {
-                        seedList.items[index] = SeedRange{ .start = seed.start, .end = @truncate(src - 1), .processed = false };
-                        try seedList.append(SeedRange{ .start = @truncate(dest), .end = @truncate(dest + seed.end - src), .processed = true });
-                    } else {
-                        seedList.items[index] = SeedRange{ .start = @truncate(dest + seed.start - src), .end = @truncate(dest + rng), .processed = true };
-                        try seedList.append(SeedRange{ .start = @truncate(src + rng + 1), .end = seed.end, .processed = false });
-                    }
+                for (seedList.items, 0..) |seedGroup, i| {
+                    const outOfBound = seedGroup.end < src or src + rng < seedGroup.start;
+                    if (seedGroup.processed or outOfBound) continue;
+
+                    const items = seedList.items;
+                    const isEndExtruding = src + rng < seedGroup.end;
+                    const end: u32 = @truncate(dest + if (isEndExtruding) rng else (seedGroup.end - src));
+
+                    if (isEndExtruding)
+                        try seedList.append(SeedRange{ .start = @truncate(src + rng + 1), .end = seedGroup.end, .processed = false });
+
+                    if (seedGroup.start < src) {
+                        items[i] = SeedRange{ .start = seedGroup.start, .end = @truncate(src - 1), .processed = false };
+                        try seedList.append(SeedRange{ .start = @truncate(dest), .end = end, .processed = true });
+                    } else items[i] = SeedRange{ .start = @truncate(dest + seedGroup.start - src), .end = end, .processed = true };
                 }
             }
         }
     }
 
+    // Get the lowest value and print
     var result: u32 = std.math.maxInt(u32);
     for (seedList.items) |seed| {
         if (seed.start < result)
